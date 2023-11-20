@@ -48,7 +48,7 @@ namespace Tester {
 				json = res.Content.ReadAsStringAsync().Result;
 			}
 			answer = AnswerParser(json);
-			return answer;
+			return Math.Round(answer, 5);
 		}
 
 		private double AnswerParser(string input) {
@@ -58,6 +58,17 @@ namespace Tester {
 			string answer = match.Value;
 			result = Double.Parse(answer.Split('=')[1]);
 			return result;
+		}
+
+		private List<double> GenerateCoeffs(int quantity) {
+			List<double> doubles = new List<double>();
+			const double min = -100.0;
+			const double max = 100.0;
+			Random random = new Random();
+			for (int i = 0; i < quantity; i++) {
+				doubles.Add(random.NextDouble() * (max - min) + min);
+			}
+			return doubles;
 		}
 	}
 }
