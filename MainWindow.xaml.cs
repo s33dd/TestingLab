@@ -70,7 +70,7 @@ namespace Tester {
 			}
 			return doubles;
 		}
-		private void PositiveTest(int quantity, double leftBorder, double rightBorder, double step, int method) {
+		private void PositiveTest(int quantity, double leftBorder, double rightBorder, double step, int method, double accuracy) {
 			const int min = 1;
 			const int max = 15;
 			Random random = new Random();
