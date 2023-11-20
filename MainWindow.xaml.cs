@@ -51,7 +51,8 @@ namespace Tester
                 json = res.Content.ReadAsStringAsync().Result;
             }
             answer = AnswerParser(json);
-            return Math.Round(answer, 5);
+            //return Math.Round(answer, 5);
+            return answer;
         }
 
         private double AnswerParser(string input)
@@ -106,11 +107,29 @@ namespace Tester
             Random random = new Random();
             for (int i = 0; i < quantity; i++)
             {
-                List<double> coeffs = GenerateCoeffs(/*random.Next(min, max)*/15);
+                List<double> coeffs = GenerateCoeffs(random.Next(min, max));
                 double wolframResult = CallWolfram(coeffs, leftBorder, rightBorder);
                 //Вызов Integral3x, сравнение результатов, генерация отчёта
                 Integral3xCall(leftBorder, rightBorder, step, method, coeffs, i, "P");
                 List<string> integral3xResult = Integral3xParser();
+
+                Result.Text += integral3xResult[0] + "\n";
+                Result.Text += integral3xResult[1] + "\n";
+                double YE = Double.Parse(integral3xResult[2].Split('=')[1].Trim().Replace('.', ','));
+                Result.Text += "YE: S = " + YE + "\n";
+                Result.Text += "YF: S = " + wolframResult + "\n";
+                double eps = Math.Abs(YE - wolframResult);
+                if ( eps < accuracy)
+                {
+                    Result.Text += "|SYE - SYF| = " + eps + "< EPS" + "\n";
+                    Result.Text += "Passed" + "\n";
+                }
+                else
+                {
+                    Result.Text += "|SYE - SYF| = " + eps + "> EPS" + "\n";
+                    Result.Text += "Not passed" + "\n";
+                }
+                Result.Text += "\n";
             }
         }
 
@@ -144,7 +163,7 @@ namespace Tester
             File.WriteAllText(Path.Combine(Path.GetTempPath(), "test.vbs"), script);
             Process vbs = Process.Start(new ProcessStartInfo(Path.Combine(Path.GetTempPath(), "test.vbs")) { UseShellExecute = true });
             vbs.WaitForExit();
-
+            File.Delete(Path.Combine(Path.GetTempPath(), "test.vbs"));
         }
 
         private List<string> ScriptGenerator(double leftBorder, double rightBorder, double step, int method, List<double> coeffs, int number, string type)

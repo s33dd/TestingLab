@@ -46,7 +46,7 @@
 			<Button x:Name="StartBtn" Grid.ColumnSpan="2" Grid.Row="6" Height="30px" Width="100px" Content="Тестирование" Click="StartBtn_Click"/>
 		</Grid>
 		<GroupBox Grid.Column="1" Header="Результат" Margin="2px 2px 2px 2px">
-            <TextBlock x:Name="Result"/>	
+            <TextBox x:Name="Result"/>	
         </GroupBox>
 	</Grid>
 </Window>
