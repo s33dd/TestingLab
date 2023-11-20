@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -18,8 +20,44 @@ namespace Tester {
 	/// Interaction logic for MainWindow.xaml
 	/// </summary>
 	public partial class MainWindow : Window {
+		private List<string> methods = new List<string> { "Парабол", "Трапеций", "Монте-Карло" };
+		private const string appId = "WV2386-Y9QKAW7GXR";
 		public MainWindow() {
 			InitializeComponent();
+			Method.ItemsSource = methods;
+			Method.SelectedIndex = 0;
+		}
+
+		private double CallWolfram(List<double> coeffs, double leftBorder, double rightBorder) {
+			double answer = 0;
+			string json;
+			string input = "integrate";
+			for (int i = 0; i < coeffs.Count; i++) {
+				// To remove "plus" from last member
+				if (i < coeffs.Count - 1) {
+					input += $"+{coeffs[i]}*x^{i}+plus";
+				} else {
+					input += $"+{coeffs[i]}*x^{i}";
+				}
+			}
+			input += $"+from+{leftBorder}+to+{rightBorder}";
+			input = input.Replace(',', '.');
+			using (var client = new HttpClient()) {
+				var endpoint = new Uri($"https://api.wolframalpha.com/v2/query?input={input}&format=plaintext&output=JSON&appid={appId}&includepodid=Input");
+				var res = client.GetAsync(endpoint).Result;
+				json = res.Content.ReadAsStringAsync().Result;
+			}
+			answer = AnswerParser(json);
+			return answer;
+		}
+
+		private double AnswerParser(string input) {
+			double result = 0;
+			Regex filter = new Regex(@"plaintext.+[0-9]");
+			var match = filter.Match(input);
+			string answer = match.Value;
+			result = Double.Parse(answer.Split('=')[1]);
+			return result;
 		}
 	}
 }
