@@ -70,5 +70,15 @@ namespace Tester {
 			}
 			return doubles;
 		}
+		private void PositiveTest(int quantity, double leftBorder, double rightBorder, double step, int method) {
+			const int min = 1;
+			const int max = 15;
+			Random random = new Random();
+			for (int i = 0; i < quantity; i++) {
+				List<double> coeffs = GenerateCoeffs(random.Next(min, max));
+				double wolframResult = CallWolfram(coeffs, leftBorder, rightBorder);
+				//Вызов Integral3x, сравнение результатов, генерация отчёта
+			}
+		}
 	}
 }
