@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Input;
 
 namespace Tester {
 	/// <summary>
@@ -74,7 +75,6 @@ namespace Tester {
 			}
 			return result;
 		}
-
 		private List<double> GenerateCoeffs(int quantity) {
 			List<double> doubles = new List<double>();
 			const double min = -100.0;
@@ -95,93 +95,100 @@ namespace Tester {
 			}
 			return doubles;
 		}
-		private void PositiveTest(int quantity, double leftBorder, double rightBorder, double step, int method, double accuracy) {
-			const int min = 1;
-			const int max = 15;
-			Random random = new Random();
-			for (int i = 0; i < quantity; i++) {
-				List<double> coeffs = GenerateCoeffs(random.Next(min, max));
-				double wolframResult = CallWolfram(coeffs, leftBorder, rightBorder);
-				//Вызов Integral3x, сравнение результатов, генерация отчёта
-				Integral3xCall(leftBorder, rightBorder, step, method, coeffs, i, "P");
-				List<string> integral3xResult = Integral3xParser();
+		
+        private void PositiveTest(int quantity, double leftBorder, double rightBorder, double step, int method, double accuracy)
+        {
+            const int min = 1;
+            const int max = 15;
+            Random random = new Random();
+            for (int i = 0; i < quantity; i++)
+            {
+                List<double> coeffs = GenerateCoeffs(random.Next(min, max));
+                double wolframResult = CallWolfram(coeffs, leftBorder, rightBorder);
+                //Вызов Integral3x, сравнение результатов, генерация отчёта
+                List<string> integral3xResult = Integral3xCall(leftBorder, rightBorder, step, method, coeffs, i, "P");
+                //List<string> integral3xResult = Integral3xParser();
 
-				Result.Text += integral3xResult[0] + "\n";
-				Result.Text += integral3xResult[1] + "\n";
-				double YF = Double.Parse(integral3xResult[2].Split('=')[1].Trim().Replace('.', ','));
-				Result.Text += "YE: S = " + wolframResult + "\n";
-				Result.Text += "YF: S = " + YF + "\n";
-				double eps = Math.Abs(wolframResult - YF);
-				if (eps < accuracy) {
-					Result.Text += "|SYE - SYF| = " + eps + "< EPS" + "\n";
-					Result.Text += "Passed" + "\n";
-				} else {
-					Result.Text += "|SYE - SYF| = " + eps + "> EPS" + "\n";
-					Result.Text += "Not passed" + "\n";
-				}
-				Result.Text += "\n";
-			}
-		}
+                Result.Text += $"Test {i+1} P" + "\n";
+                Result.Text += "X = " + integral3xResult[0] + "\n";
+                double YF = Double.Parse(integral3xResult[1].Split('=')[1].Trim().Replace('.', ','));
+                Result.Text += "YE: S = " + wolframResult + "\n";
+                Result.Text += "YF: S = " + YF + "\n";
+                double eps = Math.Abs(wolframResult - YF);
+                if (eps < accuracy)
+                {
+                    Result.Text += "|SYE - SYF| = " + eps + " < EPS" + "\n";
+                    Result.Text += "Passed" + "\n";
+                }
+                else
+                {
+                    Result.Text += "|SYE - SYF| = " + eps + " > EPS" + "\n";
+                    Result.Text += "Not passed" + "\n";
+                }
+                Result.Text += "\n";
+            }
+        }
 
-		private void NegativeTest(int quantity, double leftBorder, double rightBorder, double step, int method, double accuracy) {
-			for (int i = 1; i <= quantity; i++) {
-				List<double> coeffs = GenerateCoeffs(i*16);
-				//Вызов Integral3x, сравнение результатов, генерация отчёта
-				Integral3xCall(leftBorder, rightBorder, step, method, coeffs, i, "N");
-				List<string> integral3xResult = Integral3xParser();
+        private void NegativeTest(int quantity, double leftBorder, double rightBorder, double step, int method, double accuracy)
+        {
+            for (int i = 0; i < quantity; i++)
+            {
+                List<double> coeffs = GenerateCoeffs(1024, 16, 16);
+                //Вызов Integral3x, сравнение результатов, генерация отчёта
+                List<string> integral3xResult = Integral3xCall(leftBorder, rightBorder, step, method, coeffs, i, "N");
+                //List<string> integral3xResult = Integral3xParser();
 
-				Result.Text += integral3xResult[0] + "\n";
-				Result.Text += integral3xResult[1] + "\n";
-				Result.Text += "YE: S = " + "Сообщение о превышении степени полинома" + "\n";
-				if (double.TryParse(integral3xResult[2].Split('=')[1].Trim().Replace('.', ','), out double number)) {
-					Result.Text += "YF: S = " + number + "\n";
-					Result.Text += "Not passed" + "\n";
-				} else {
-					Result.Text += "YF: " + integral3xResult[2] + "\n";
-					Result.Text += "Passed" + "\n";
-				}
-				Result.Text += "\n";
-			}
-		}
-		private List<string> Integral3xParser() {
-			List<string> res = new List<string>();
-			foreach (string line in File.ReadLines("report.txt")) {
-				res.Add(line);
-			}
-			File.Delete("report.txt");
-			return res;
-			//string resualt = File.ReadLines("report.txt").ElementAtOrDefault(2);
-		}
-		private void Integral3xCall(double leftBorder, double rightBorder, double step, int method, List<double> coeffs, int number, string type) {
-			List<string> commands = ScriptGenerator(leftBorder, rightBorder, step, method, coeffs, number, type);
-			string script = "";
-			foreach (string line in File.ReadLines("Script.TXT")) {
-				if (line == "X") {
-					script += commands[0] + "\n";
-				} else {
-					if (line == "N T") {
-						script += commands[1] + "\n";
-					} else {
-						script += line + "\n";
-					}
-				}
-			}
-			File.WriteAllText(Path.Combine(Path.GetTempPath(), "test.vbs"), script);
-			Process vbs = Process.Start(new ProcessStartInfo(Path.Combine(Path.GetTempPath(), "test.vbs")) { UseShellExecute = true });
-			vbs.WaitForExit();
-			File.Delete(Path.Combine(Path.GetTempPath(), "test.vbs"));
-		}
+                Result.Text += $"Test {i + 1} N" + "\n";
+                Result.Text += integral3xResult[0] + "\n";
+                Result.Text += "YE: S = " + "Сообщение о превышении степени полинома" + "\n";
+                if (double.TryParse(integral3xResult[1].Split('=')[1].Trim().Replace('.', ','), out double number))
+                {
+                    Result.Text += "YF: S = " + number + "\n";
+                    Result.Text += "Not passed" + "\n";
+                }
+                else
+                {
+                    //Result.Text += "YF: " + integral3xResult[2] + "\n";
+                    Result.Text += "Passed" + "\n";
+                }
+                Result.Text += "\n";
+            }
+        }
+        private List<string> Integral3xCall(double leftBorder, double rightBorder, double step, int method, List<double> coeffs, int number, string type)
+        {
+            List<string> commands = ScriptGenerator(leftBorder, rightBorder, step, method, coeffs, number, type);
 
-		private List<string> ScriptGenerator(double leftBorder, double rightBorder, double step, int method, List<double> coeffs, int number, string type) {
-			string inputCoeffs = "";
-			foreach (var coeff in coeffs) {
-				inputCoeffs += $" {coeff.ToString()}";
-			}
-			string inputLine = $"X = \"{leftBorder} {rightBorder} {step} {method}{inputCoeffs}\"";
-			string inputScriptNumber = $"f.WriteLine(\"TEST {number} {type}\")";
-			List<string> comands = new List<string> { inputLine, inputScriptNumber };
-			return comands;
-		}
+            var process = new Process();
+
+            process.StartInfo.FileName = @"Integral3x.exe";
+
+            process.StartInfo.Arguments = commands[0];
+
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardInput = true;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.CreateNoWindow = true;
+            process.Start();
+
+            string YF = string.Empty;
+            commands[1] = process.StandardOutput.ReadLine();
+            process.StandardInput.Write(Key.Enter);
+            process.WaitForExit();
+            return commands;
+        }
+
+        private List<string> ScriptGenerator(double leftBorder, double rightBorder, double step, int method, List<double> coeffs, int number, string type)
+        {
+            string inputCoeffs = "";
+            foreach (var coeff in coeffs)
+            {
+                inputCoeffs += $" {coeff.ToString()}";
+            }
+            string inputLine = $"{leftBorder} {rightBorder} {step} {method}{inputCoeffs}";
+            string inputScriptNumber = $"f.WriteLine(\"TEST {number} {type}\")";
+            List<string> comands = new List<string> { inputLine, inputScriptNumber };
+            return comands;
+        }
 
 		private void StartBtn_Click(object sender, RoutedEventArgs e) {
 			int quantity = int.Parse(CasesQuantity.Text);
