@@ -89,7 +89,7 @@
 				</TextBox.Text>
 			</TextBox>
 			<Button x:Name="StartBtn" Grid.Column="0" Grid.Row="6" Height="30px" Width="100px" Content="Тестирование" Click="StartBtn_Click"/>
-			<Button x:Name="ExportBtn" Grid.Column="1" Grid.Row="6" Height="30px" Width="100px" Content="Экспорт"/>
+			<Button x:Name="ExportBtn" Grid.Column="1" Grid.Row="6" Height="30px" Width="100px" Content="Экспорт" Click="ExportBtn_Click"/>
 		</Grid>
 		<GroupBox Grid.Column="1" Header="Результат" Margin="2px 2px 2px 2px">
             <TextBox x:Name="Result" IsReadOnly="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto"/>	
