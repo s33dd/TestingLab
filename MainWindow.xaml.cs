@@ -16,11 +16,11 @@ namespace Tester {
 	public partial class MainWindow : Window {
 		private List<string> methods = new List<string> { "Парабол", "Трапеций", "Монте-Карло" };
 		private const string appId = "WV2386-Y9QKAW7GXR";
+		private Parameters parameters = new Parameters();
 		public MainWindow() {
 			InitializeComponent();
 			Method.ItemsSource = methods;
 			Method.SelectedIndex = 0;
-			Parameters parameters = new Parameters();
 			parameters.Quantity = 4;
 			parameters.Eps = 0.01;
 			parameters.Step = 0.001;
@@ -177,12 +177,12 @@ namespace Tester {
 		}
 
 		private void StartBtn_Click(object sender, RoutedEventArgs e) {
-			int quantity = int.Parse(CasesQuantity.Text);
-			double leftBorder = double.Parse(LeftBorder.Text);
-			double rightBorder = double.Parse(RightBorder.Text);
-			double step = double.Parse(Step.Text);
+			int quantity = parameters.Quantity;
+			double leftBorder = parameters.LeftBorder;
+			double rightBorder = parameters.RightBorder;
+			double step = parameters.Step;
 			int method = Method.SelectedIndex + 1;
-			double accuracy = double.Parse(Accuracy.Text);
+			double accuracy = parameters.Eps;
 			Result.Text = "";
 
 			if (RadioPos.IsChecked == true) {
