@@ -1,0 +1,13 @@
+Dim WshShell : Set WshShell = WScript.CreateObject("WScript.Shell")
+Set FSO = CreateObject("Scripting.FileSystemObject")
+Set f = FSO.OpenTextFile("report.txt", 8, True, -1)
+X
+Set ProgStdOut = WshShell.Exec("cmd /c Integral3x.exe "+X).StdOut
+Y = ProgStdOut.ReadLine
+WshShell.SendKeys("e")
+N T
+f.WriteLine("X = "+X)
+f.WriteLine(Y)
+f.WriteLine("")
+f.Close
+WScript.Quit
