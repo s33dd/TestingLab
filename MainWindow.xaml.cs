@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -61,12 +60,15 @@ namespace Tester
             Regex filter = new Regex(@"plaintext.+[0-9]");
             var match = filter.Match(input);
             string answer = match.Value;
-            try {
+            try
+            {
                 result = Double.Parse(answer.Split('=')[1].Trim().Replace('.', ','));
-            } 
-            catch {
+            }
+            catch
+            {
                 Regex approxSign = new Regex("≈");
-                if (approxSign.IsMatch(input)){
+                if (approxSign.IsMatch(input))
+                {
                     answer = answer.Split('≈')[1].Trim().Replace('.', ',');
                 }
                 answer = answer.Split('=')[1].Trim().Replace('.', ',');
@@ -78,21 +80,24 @@ namespace Tester
             return result;
         }
 
-        private List<double> GenerateCoeffs(int quantity)
+        private List<double> GenerateCoeffs(int to, int frorm = 0, int step = 1)
         {
             List<double> doubles = new List<double>();
             const double min = -100.0;
             const double max = 100.0;
             Random random = new Random();
-            for (int i = 0; i < quantity; i++)
+            for (int i = frorm; i < to; i += step)
             {
                 double value = random.NextDouble() * (max - min) + min;
-                switch (quantity > 10) {
-                    case true: {
+                switch (to > 10)
+                {
+                    case true:
+                        {
                             doubles.Add(Math.Round(value, 1));
                             break;
                         }
-                    default: {
+                    default:
+                        {
                             doubles.Add(Math.Round(value, 5));
                             break;
                         }
@@ -115,11 +120,11 @@ namespace Tester
 
                 Result.Text += integral3xResult[0] + "\n";
                 Result.Text += integral3xResult[1] + "\n";
-                double YE = Double.Parse(integral3xResult[2].Split('=')[1].Trim().Replace('.', ','));
-                Result.Text += "YE: S = " + YE + "\n";
-                Result.Text += "YF: S = " + wolframResult + "\n";
-                double eps = Math.Abs(YE - wolframResult);
-                if ( eps < accuracy)
+                double YF = Double.Parse(integral3xResult[2].Split('=')[1].Trim().Replace('.', ','));
+                Result.Text += "YE: S = " + wolframResult + "\n";
+                Result.Text += "YF: S = " + YF + "\n";
+                double eps = Math.Abs(wolframResult - YF);
+                if (eps < accuracy)
                 {
                     Result.Text += "|SYE - SYF| = " + eps + "< EPS" + "\n";
                     Result.Text += "Passed" + "\n";
@@ -133,10 +138,36 @@ namespace Tester
             }
         }
 
+        private void NegativeTest(int quantity, double leftBorder, double rightBorder, double step, int method, double accuracy)
+        {
+            for (int i = 0; i < quantity; i++)
+            {
+                List<double> coeffs = GenerateCoeffs(1024, 16, 16);
+                //Вызов Integral3x, сравнение результатов, генерация отчёта
+                Integral3xCall(leftBorder, rightBorder, step, method, coeffs, i, "N");
+                List<string> integral3xResult = Integral3xParser();
+
+                Result.Text += integral3xResult[0] + "\n";
+                Result.Text += integral3xResult[1] + "\n";
+                Result.Text += "YE: S = " + "Сообщение о превышении степени полинома" + "\n";
+                if (double.TryParse(integral3xResult[2].Split('=')[1].Trim().Replace('.', ','), out double number))
+                {
+                    Result.Text += "YF: S = " + number + "\n";
+                    Result.Text += "Not passed" + "\n";
+                }
+                else
+                {
+                    Result.Text += "YF: " + integral3xResult[2] + "\n";
+                    Result.Text += "Passed" + "\n";
+                }
+                Result.Text += "\n";
+            }
+        }
         private List<string> Integral3xParser()
         {
             List<string> res = new List<string>();
-            foreach (string line in File.ReadLines("report.txt")) { 
+            foreach (string line in File.ReadLines("report.txt"))
+            {
                 res.Add(line);
             }
             File.Delete("report.txt");
@@ -147,15 +178,20 @@ namespace Tester
         {
             List<string> commands = ScriptGenerator(leftBorder, rightBorder, step, method, coeffs, number, type);
             string script = "";
-            foreach (string line in File.ReadLines("Script.TXT")) {
-                if (line == "X") { 
+            foreach (string line in File.ReadLines("Script.TXT"))
+            {
+                if (line == "X")
+                {
                     script += commands[0] + "\n";
                 }
-                else {
-                    if (line == "N T") { 
+                else
+                {
+                    if (line == "N T")
+                    {
                         script += commands[1] + "\n";
                     }
-                    else {
+                    else
+                    {
                         script += line + "\n";
                     }
                 }
@@ -187,10 +223,15 @@ namespace Tester
             double step = double.Parse(Step.Text);
             int method = Method.SelectedIndex + 1;
             double accuracy = double.Parse(Accuracy.Text);
+            Result.Text = "";
 
             if (RadioPos.IsChecked == true)
             {
                 PositiveTest(quantity, leftBorder, rightBorder, step, method, accuracy);
+            }
+            if (RadioNeg.IsChecked == true)
+            {
+                NegativeTest(quantity, leftBorder, rightBorder, step, method, accuracy);
             }
         }
     }
