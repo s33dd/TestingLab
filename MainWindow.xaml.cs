@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
@@ -27,6 +28,7 @@ namespace Tester {
 			parameters.LeftBorder = 1;
 			parameters.RightBorder = 4;
 			this.DataContext = parameters;
+			ExportBtn.IsEnabled = false;
 		}
 
 		private double CallWolfram(List<double> coeffs, double leftBorder, double rightBorder) {
@@ -191,6 +193,7 @@ namespace Tester {
 			if (RadioNeg.IsChecked == true) {
 				NegativeTest(quantity, leftBorder, rightBorder, step, method, accuracy);
 			}
+			ExportBtn.IsEnabled = true;
 		}
 
 		private void ValidationError(object sender, ValidationErrorEventArgs e) {
@@ -215,5 +218,10 @@ namespace Tester {
 					yield return childOfChild;
 			}
 		}
-	}
+
+        private void ExportBtn_Click(object sender, RoutedEventArgs e)
+        {
+			File.WriteAllText("report.txt", Result.Text);
+        }
+    }
 }
