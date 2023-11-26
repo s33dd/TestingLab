@@ -18,6 +18,7 @@ namespace Tester {
 		private List<string> methods = new List<string> { "Парабол", "Трапеций", "Монте-Карло" };
 		private const string appId = "WV2386-Y9QKAW7GXR";
 		private Parameters parameters = new Parameters();
+		private bool testType = true;
 		public MainWindow() {
 			InitializeComponent();
 			Method.ItemsSource = methods;
@@ -225,6 +226,26 @@ namespace Tester {
         private void ExportBtn_Click(object sender, RoutedEventArgs e)
         {
 			File.WriteAllText("report.txt", Result.Text);
+        }
+
+        private void RadioPos_Click(object sender, RoutedEventArgs e)
+        {
+			CasesQuantity.Text = 15.ToString();
+			testType = true;
+        }
+
+        private void RadioNeg_Click(object sender, RoutedEventArgs e)
+        {
+			CasesQuantity.Text = 64.ToString();
+			testType = false;
+        }
+
+        private void GenerateCoefs_Click(object sender, RoutedEventArgs e)
+        {
+			if (testType)
+			{
+
+			}
         }
     }
 }
