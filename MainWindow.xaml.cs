@@ -97,6 +97,9 @@ namespace Tester {
 			return doubles;
 		}
 
+		//TODO: Сохранение исходных данных, выполнение тест-кейсов не рандомными, генерация раздельно с исполнением, выводить в отчёт степень полинома,
+		// генерировать коэффициенты один раз по максимальной размерности и использовать их
+
 		private void PositiveTest(int quantity, double leftBorder, double rightBorder, double step, int method, double accuracy) {
 			const int min = 1;
 			const int max = 15;
