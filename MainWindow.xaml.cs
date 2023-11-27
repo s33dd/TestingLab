@@ -19,6 +19,7 @@ namespace Tester {
 		private const string appId = "WV2386-Y9QKAW7GXR";
 		private Parameters parameters = new Parameters();
 		private bool testType = true;
+		private List<List<double>> coeffsArray = new List<List<double>>();
 		public MainWindow() {
 			InitializeComponent();
 			Method.ItemsSource = methods;
@@ -77,7 +78,7 @@ namespace Tester {
 			}
 			return result;
 		}
-		private List<double> GenerateCoeffs(int quantity) {
+		/*private List<double> GenerateCoeffs(int quantity) {
 			List<double> doubles = new List<double>();
 			const double min = -100.0;
 			const double max = 100.0;
@@ -96,7 +97,7 @@ namespace Tester {
 				}
 			}
 			return doubles;
-		}
+		}*/
 
 		//TODO: Сохранение исходных данных, выполнение тест-кейсов не рандомными, генерация раздельно с исполнением, выводить в отчёт степень полинома,
 		// генерировать коэффициенты один раз по максимальной размерности и использовать их
@@ -105,14 +106,24 @@ namespace Tester {
 			const int min = 1;
 			const int max = 15;
 			Random random = new Random();
-			for (int i = 0; i < quantity; i++) {
-				List<double> coeffs = GenerateCoeffs(random.Next(min, max));
+			int coefCount = 0;
+			for (int i = 1; i <= quantity; i++) {
+                //List<double> coeffs = GenerateCoeffs(random.Next(min, max));
+				List<double> coeffs = new List<double>();
+				String ab = PolyCoefs.Text;
+				var arr = ab.Split(" ");
+                for (int j = coefCount; j < coefCount + i; j++)
+				{
+                    coeffs.Add(double.Parse(arr[j]));
+				}
+				coefCount += i;
 				double wolframResult = CallWolfram(coeffs, leftBorder, rightBorder);
 				//Вызов Integral3x, сравнение результатов, генерация отчёта
 				List<string> integral3xResult = Integral3xCall(leftBorder, rightBorder, step, method, coeffs, i, "P");
 				//List<string> integral3xResult = Integral3xParser();
 
-				Result.Text += $"Test {i + 1} P" + "\n";
+				Result.Text += $"Test {i} P" + "\n";
+				Result.Text += $"Длина полинома = {coeffs.Count()}" + "\n";
 				Result.Text += "X = " + integral3xResult[0] + "\n";
 				double YF = Double.Parse(integral3xResult[1].Split('=')[1].Trim().Replace('.', ','));
 				Result.Text += "YE: S = " + wolframResult + "\n";
@@ -130,14 +141,24 @@ namespace Tester {
 		}
 
 		private void NegativeTest(int quantity, double leftBorder, double rightBorder, double step, int method, double accuracy) {
-			for (int i = 1; i <= quantity; i++) {
-				List<double> coeffs = GenerateCoeffs(i * 16);
-				//Вызов Integral3x, сравнение результатов, генерация отчёта
-				List<string> integral3xResult = Integral3xCall(leftBorder, rightBorder, step, method, coeffs, i, "N");
+            int coefCount = 0;
+            for (int i = 1; i <= quantity; i++) {
+				//List<double> coeffs = GenerateCoeffs(i * 16);
+                List<double> coeffs = new List<double>();
+                String ab = PolyCoefs.Text;
+                var arr = ab.Split(" ");
+                for (int j = coefCount; j < coefCount + 16 * i; j++)
+                {
+                    coeffs.Add(double.Parse(arr[j]));
+                }
+                coefCount += 16 * i;
+                //Вызов Integral3x, сравнение результатов, генерация отчёта
+                List<string> integral3xResult = Integral3xCall(leftBorder, rightBorder, step, method, coeffs, i, "N");
 				//List<string> integral3xResult = Integral3xParser();
 
-				Result.Text += $"Test {i + 1} N" + "\n";
-				Result.Text += integral3xResult[0] + "\n";
+				Result.Text += $"Test {i} N" + "\n";
+                Result.Text += $"Длина полинома = {coeffs.Count()}" + "\n";
+                Result.Text += integral3xResult[0] + "\n";
 				Result.Text += "YE: S = " + "Сообщение о превышении степени полинома" + "\n";
 				if (double.TryParse(integral3xResult[1].Split('=')[1].Trim().Replace('.', ','), out double number)) {
 					Result.Text += "YF: S = " + number + "\n";
@@ -244,8 +265,94 @@ namespace Tester {
         {
 			if (testType)
 			{
+				for (int i = 1; i < 16; i++)
+				{
+					List<double> coeffs = GenerateCoeffs(i);
+					PolyCoefs.Text += String.Join(" ", coeffs.ToArray());
+					PolyCoefs.Text += " ";
+				}
+				int coefCount = 0;
+				for (int k = 1; k <= parameters.Quantity; k++)
+				{
+					//List<double> coeffs = GenerateCoeffs(random.Next(min, max));
+					List<double> coeffs = new List<double>();
+					String ab = PolyCoefs.Text;
+					var arr = ab.Split(" ");
+					for (int j = coefCount; j < coefCount + k; j++)
+					{
+						coeffs.Add(double.Parse(arr[j]));
+					}
+					coefCount += k;
+					double wolframResult = CallWolfram(coeffs, parameters.LeftBorder, parameters.RightBorder);
+					//Вызов Integral3x, сравнение результатов, генерация отчёта
+					List<string> integral3xResult = Integral3xCall(parameters.LeftBorder, parameters.RightBorder, parameters.Step, Method.SelectedIndex + 1, coeffs, k, "P");
+					//List<string> integral3xResult = Integral3xParser();
 
+					testsCases.Text += $"Test {k} P" + "\n";
+					testsCases.Text += $"Длина полинома = {coeffs.Count()}" + "\n";
+					testsCases.Text += "X = " + integral3xResult[0] + "\n";
+					double YF = Double.Parse(integral3xResult[1].Split('=')[1].Trim().Replace('.', ','));
+					testsCases.Text += "YE: S = " + wolframResult + "\n";
+					testsCases.Text += "\n";
+				}
 			}
+			else
+			{
+				for (int i = 16; i <= 1024; i += 16)
+				{
+					List<double> coeffs = GenerateCoeffs(i);
+					PolyCoefs.Text += String.Join(" ", coeffs.ToArray());
+					PolyCoefs.Text += " ";
+				}
+				int coefCount = 0;
+				for (int i = 1; i <= parameters.Quantity; i++)
+				{
+					//List<double> coeffs = GenerateCoeffs(i * 16);
+					List<double> coeffs = new List<double>();
+					String ab = PolyCoefs.Text;
+					var arr = ab.Split(" ");
+					for (int j = coefCount; j < coefCount + 16 * i; j++)
+					{
+						coeffs.Add(double.Parse(arr[j]));
+					}
+					coefCount += 16 * i;
+					//Вызов Integral3x, сравнение результатов, генерация отчёта
+					List<string> integral3xResult = Integral3xCall(parameters.LeftBorder, parameters.RightBorder, parameters.Step, Method.SelectedIndex + 1, coeffs, i, "N");
+					//List<string> integral3xResult = Integral3xParser();
+
+					testsCases.Text += $"Test {i} N" + "\n";
+					testsCases.Text += $"Длина полинома = {coeffs.Count()}" + "\n";
+					testsCases.Text += "X = " + integral3xResult[0] + "\n";
+					testsCases.Text += "YE: S = " + "Сообщение о превышении степени полинома" + "\n";
+                    testsCases.Text += "\n";
+                }
+			}
+        }
+
+        private List<double> GenerateCoeffs(int quantity)
+        {
+            List<double> doubles = new List<double>();
+            const double min = -100.0;
+            const double max = 100.0;
+            Random random = new Random();
+            for (int i = 0; i < quantity; i++)
+            {
+                double value = random.NextDouble() * (max - min) + min;
+                switch (quantity > 10)
+                {
+                    case true:
+                        {
+                            doubles.Add(Math.Round(value, 1));
+                            break;
+                        }
+                    default:
+                        {
+                            doubles.Add(Math.Round(value, 5));
+                            break;
+                        }
+                }
+            }
+            return doubles;
         }
     }
 }
