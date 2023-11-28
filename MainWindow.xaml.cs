@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -35,6 +35,8 @@ namespace Tester
             parameters.RightBorder = 4;
             this.DataContext = parameters;
             ExportBtn.IsEnabled = false;
+            StartBtn.IsEnabled = false;
+            SaveTests.IsEnabled = false;
         }
 
         private double CallWolfram(List<double> coeffs, double leftBorder, double rightBorder)
@@ -92,72 +94,17 @@ namespace Tester
             }
             return result;
         }
-        /*private List<double> GenerateCoeffs(int quantity) {
-			List<double> doubles = new List<double>();
-			const double min = -100.0;
-			const double max = 100.0;
-			Random random = new Random();
-			for (int i = 0; i < quantity; i++) {
-				double value = random.NextDouble() * (max - min) + min;
-				switch (quantity > 10) {
-					case true: {
-							doubles.Add(Math.Round(value, 1));
-							break;
-						}
-					default: {
-							doubles.Add(Math.Round(value, 5));
-							break;
-						}
-				}
-			}
-			return doubles;
-		}*/
+
+
 
         //TODO: Сохранение исходных данных, выполнение тест-кейсов не рандомными, генерация раздельно с исполнением, выводить в отчёт степень полинома,
         // генерировать коэффициенты один раз по максимальной размерности и использовать их
 
-        /*private void PositiveTest(int quantity, double leftBorder, double rightBorder, double step, int method, double accuracy) {
-			const int min = 1;
-			const int max = 15;
-			Random random = new Random();
-			int coefCount = 0;
-			for (int i = 1; i <= quantity; i++) {
-                //List<double> coeffs = GenerateCoeffs(random.Next(min, max));
-				List<double> coeffs = new List<double>();
-				String ab = PolyCoefs.Text;
-				var arr = ab.Split(" ");
-                for (int j = coefCount; j < coefCount + i; j++)
-				{
-                    coeffs.Add(double.Parse(arr[j]));
-				}
-				coefCount += i;
-				double wolframResult = CallWolfram(coeffs, leftBorder, rightBorder);
-				//Вызов Integral3x, сравнение результатов, генерация отчёта
-				List<string> integral3xResult = Integral3xCall(leftBorder, rightBorder, step, method, coeffs, i, "P");
-				//List<string> integral3xResult = Integral3xParser();
 
-				Result.Text += $"Test {i} P" + "\n";
-				Result.Text += $"Длина полинома = {coeffs.Count()}" + "\n";
-				Result.Text += "X = " + integral3xResult[0] + "\n";
-				double YF = Double.Parse(integral3xResult[1].Split('=')[1].Trim().Replace('.', ','));
-				Result.Text += "YE: S = " + wolframResult + "\n";
-				Result.Text += "YF: S = " + YF + "\n";
-				double eps = Math.Abs(wolframResult - YF);
-				if (eps < accuracy) {
-					Result.Text += "|SYE - SYF| = " + eps + " < EPS" + "\n";
-					Result.Text += "Passed" + "\n";
-				} else {
-					Result.Text += "|SYE - SYF| = " + eps + " > EPS" + "\n";
-					Result.Text += "Not passed" + "\n";
-				}
-				Result.Text += "\n";
-			}
-		}*/
         private void PositiveTest(int quantity, double leftBorder, double rightBorder, double step, int method, double accuracy)
         {
             String tests = testsCases.Text;
             string tempStr = tests;
-            var arr = tests.Split("\n");
 
             Regex scriptFilter = new Regex(@"X = .+[0-9]");
             Regex YEFilter = new Regex(@"YE: S = .+[0 - 9]");
@@ -190,66 +137,43 @@ namespace Tester
 
                 Regex reg = new Regex("\n\n");
                 tests = reg.Replace(tests, editText, 1);
-                Result.Text += tests.Remove(tests.IndexOf("\n\n")+2);
+                Result.Text += tests.Remove(tests.IndexOf("\n\n") + 2);
                 tests = tests.Remove(tests.IndexOf("Test"), tests.IndexOf("\n\n") + 2);
             }
         }
         private void NegativeTest(int quantity, double leftBorder, double rightBorder, double step, int method, double accuracy)
         {
-            int coefCount = 0;
-            for (int i = 1; i <= quantity; i++)
-            {
-                //List<double> coeffs = GenerateCoeffs(i * 16);
-                List<double> coeffs = new List<double>();
-                String ab = PolyCoefs.Text;
-                var arr = ab.Split(" ");
-                for (int j = coefCount; j < coefCount + 16 * i; j++)
-                {
-                    coeffs.Add(double.Parse(arr[j]));
-                }
-                coefCount += 16 * i;
-                //Вызов Integral3x, сравнение результатов, генерация отчёта
-                List<string> integral3xResult = Integral3xCall(leftBorder, rightBorder, step, method, coeffs, i, "N");
-                //List<string> integral3xResult = Integral3xParser();
+            String tests = testsCases.Text;
+            string tempStr = tests;
 
-                Result.Text += $"Test {i} N" + "\n";
-                Result.Text += $"Длина полинома = {coeffs.Count()}" + "\n";
-                Result.Text += integral3xResult[0] + "\n";
-                Result.Text += "YE: S = " + "Сообщение о превышении степени полинома" + "\n";
-                if (double.TryParse(integral3xResult[1].Split('=')[1].Trim().Replace('.', ','), out double number))
+            Regex scriptFilter = new Regex(@"X = .+[0-9]");
+
+            while (tests.Contains("\n\n"))
+            {
+                string editText = string.Empty;
+                var match = scriptFilter.Match(tests);
+                string script = match.Value;
+                script = script.Split("=")[1].Trim();
+
+                if (Double.TryParse(Integral3xCall(script).Split('=')[1].Trim().Replace('.', ','), out double YF))
                 {
-                    Result.Text += "YF: S = " + number + "\n";
-                    Result.Text += "Not passed" + "\n";
+
+                    editText += "\nYF: S = " + YF + "\n";
+                    editText += "Not passed" + "\n";
                 }
                 else
                 {
-                    //Result.Text += "YF: " + integral3xResult[2] + "\n";
-                    Result.Text += "Passed" + "\n";
+                    editText += "\nPassed" + "\n";
                 }
-                Result.Text += "\n";
+                editText += "\n";
+
+                Regex reg = new Regex("\n\n");
+                tests = reg.Replace(tests, editText, 1);
+                Result.Text += tests.Remove(tests.IndexOf("\n\n") + 2);
+                tests = tests.Remove(tests.IndexOf("Test"), tests.IndexOf("\n\n") + 2);
             }
         }
-        private List<string> Integral3xCall(double leftBorder, double rightBorder, double step, int method, List<double> coeffs, int number, string type)
-        {
-            List<string> commands = ScriptGenerator(leftBorder, rightBorder, step, method, coeffs, number, type);
 
-            var process = new Process();
-
-            process.StartInfo.FileName = @"Integral3x.exe";
-
-            process.StartInfo.Arguments = commands[0];
-
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.RedirectStandardInput = true;
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.CreateNoWindow = true;
-            process.Start();
-
-            commands[1] = process.StandardOutput.ReadLine();
-            process.StandardInput.Write(Key.Enter);
-            process.WaitForExit();
-            return commands;
-        }
         private string Integral3xCall(string script)
         {
             var process = new Process();
@@ -339,6 +263,7 @@ namespace Tester
         private void RadioPos_Click(object sender, RoutedEventArgs e)
         {
             CasesQuantity.Text = 15.ToString();
+            parameters.Quantity = 15;
             testType = true;
         }
 
@@ -346,6 +271,7 @@ namespace Tester
         {
             CasesQuantity.Text = 64.ToString();
             testType = false;
+            parameters.Quantity = 64;
         }
 
         private void GenerateCoefs_Click(object sender, RoutedEventArgs e)
@@ -381,7 +307,7 @@ namespace Tester
                     testsCases.Text += "YE: S = " + wolframResult + "\n";
                     testsCases.Text += "\n";
                 }
-                
+
             }
             else
             {
@@ -414,6 +340,8 @@ namespace Tester
                     testsCases.Text += "\n";
                 }
             }
+            StartBtn.IsEnabled = true;
+            SaveTests.IsEnabled = true;
         }
 
         private List<double> GenerateCoeffs(int quantity)
@@ -440,6 +368,23 @@ namespace Tester
                 }
             }
             return doubles;
+        }
+
+        private void InputTests_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            if (saveFileDialog.ShowDialog() == false) return;
+            string path = saveFileDialog.FileName;
+            testsCases.Text = File.ReadAllText(path + ".txt");
+            StartBtn.IsEnabled = true;
+        }
+
+        private void SaveTests_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            if (saveFileDialog.ShowDialog() == false) return;
+            string path = saveFileDialog.FileName;
+            File.WriteAllText(path + ".txt", testsCases.Text);
         }
     }
 }
