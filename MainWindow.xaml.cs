@@ -22,6 +22,7 @@ namespace Tester
         private const string appId = "WV2386-Y9QKAW7GXR";
         private Parameters parameters = new Parameters();
         private bool testType = true;
+        private bool coeffsGenerated = false;
         private List<List<double>> coeffsArray = new List<List<double>>();
         public MainWindow()
         {
@@ -105,7 +106,7 @@ namespace Tester
             string tempStr = tests;
 
             Regex scriptFilter = new Regex(@"X = .+[0-9]");
-            Regex YEFilter = new Regex(@"YE: S = .+[0 - 9]");
+            Regex YEFilter = new Regex(@"YE: S = [0-9,-]+");
 
             while (tests.Contains("\n\n"))
             {
@@ -232,10 +233,14 @@ namespace Tester
                 if (Validation.GetHasError(tb))
                 {
                     StartBtn.IsEnabled = false;
-                    return;
+					GenerateCoefs.IsEnabled = false;
+					return;
                 }
             }
-            StartBtn.IsEnabled = true;
+            if (coeffsGenerated) {
+                StartBtn.IsEnabled = true;
+            }
+            GenerateCoefs.IsEnabled = true;
         }
         private static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
         {
@@ -274,33 +279,30 @@ namespace Tester
 
         private void GenerateCoefs_Click(object sender, RoutedEventArgs e)
         {
-            if (testType)
+			if (testType)
             {
-                for (int i = 1; i < 16; i++)
-                {
-                    List<double> coeffs = GenerateCoeffs(i);
-					PolyCoefs.Text += String.Join(" ", coeffs.ToArray());
-                    PolyCoefs.Text += " ";
-                }
+                const int positiveCoeffsQunatity = 15;
+                List<double> coeffs = GenerateCoeffs(positiveCoeffsQunatity);
+				PolyCoefs.Text += String.Join(" ", coeffs.ToArray());
+                PolyCoefs.Text += " ";
                 int coefCount = 0;
                 for (int k = 1; k <= parameters.Quantity; k++)
                 {
-                    //List<double> coeffs = GenerateCoeffs(random.Next(min, max));
-                    List<double> coeffs = new List<double>();
+                    List<double> localCoeffs = new List<double>();
                     String ab = PolyCoefs.Text;
                     var arr = ab.Split(" ");
-                    for (int j = coefCount; j < coefCount + k; j++)
+                    for (int j = 0; j < k; j++)
                     {
-                        coeffs.Add(double.Parse(arr[j]));
+						localCoeffs.Add(double.Parse(arr[j]));
                     }
                     coefCount += k;
-                    double wolframResult = CallWolfram(coeffs, parameters.LeftBorder, parameters.RightBorder);
+                    double wolframResult = CallWolfram(localCoeffs, parameters.LeftBorder, parameters.RightBorder);
+                    
                     //Вызов Integral3x, сравнение результатов, генерация отчёта
-                    List<string> integral3xResult = ScriptGenerator(parameters.LeftBorder, parameters.RightBorder, parameters.Step, Method.SelectedIndex + 1, coeffs, k, "P");
-                    //List<string> integral3xResult = Integral3xParser();
+                    List<string> integral3xResult = ScriptGenerator(parameters.LeftBorder, parameters.RightBorder, parameters.Step, Method.SelectedIndex + 1, localCoeffs, k, "P");
 
                     testsCases.Text += $"Test {k} P" + "\n";
-                    testsCases.Text += $"Длина полинома = {coeffs.Count()}" + "\n";
+                    testsCases.Text += $"Длина полинома = {localCoeffs.Count()}" + "\n";
                     testsCases.Text += "X = " + integral3xResult[0] + "\n";
                     testsCases.Text += "YE: S = " + wolframResult + "\n";
                     testsCases.Text += "\n";
@@ -309,35 +311,33 @@ namespace Tester
             }
             else
             {
-                for (int i = 16; i <= 1024; i += 16)
-                {
-                    List<double> coeffs = GenerateCoeffs(i);
-                    PolyCoefs.Text += String.Join(" ", coeffs.ToArray());
-                    PolyCoefs.Text += " ";
-                }
+				const int negativeCoeffsQunatity = 1024;
+				List<double> coeffs = GenerateCoeffs(negativeCoeffsQunatity);
+                PolyCoefs.Text += String.Join(" ", coeffs.ToArray());
+                PolyCoefs.Text += " ";
                 int coefCount = 0;
                 for (int i = 1; i <= parameters.Quantity; i++)
                 {
-                    List<double> coeffs = new List<double>();
+                    List<double> localCoeffs = new List<double>();
                     String ab = PolyCoefs.Text;
                     var arr = ab.Split(" ");
-                    for (int j = coefCount; j < coefCount + 16 * i; j++)
+                    for (int j = 0; j < i * 16; j++)
                     {
-                        coeffs.Add(double.Parse(arr[j]));
+						localCoeffs.Add(double.Parse(arr[j]));
                     }
-                    coefCount += 16 * i;
+                    coefCount += 16;
                     //Вызов Integral3x, сравнение результатов, генерация отчёта
-                    List<string> integral3xResult = ScriptGenerator(parameters.LeftBorder, parameters.RightBorder, parameters.Step, Method.SelectedIndex + 1, coeffs, i, "N");
-                    //List<string> integral3xResult = Integral3xParser();
+                    List<string> integral3xResult = ScriptGenerator(parameters.LeftBorder, parameters.RightBorder, parameters.Step, Method.SelectedIndex + 1, localCoeffs, i, "N");
 
                     testsCases.Text += $"Test {i} N" + "\n";
-                    testsCases.Text += $"Длина полинома = {coeffs.Count()}" + "\n";
+                    testsCases.Text += $"Длина полинома = {localCoeffs.Count()}" + "\n";
                     testsCases.Text += "X = " + integral3xResult[0] + "\n";
                     testsCases.Text += "YE: S = " + "Сообщение о превышении степени полинома" + "\n";
                     testsCases.Text += "\n";
                 }
-            } 
-            StartBtn.IsEnabled = true;
+            }
+			coeffsGenerated = true;
+			StartBtn.IsEnabled = true;
             SaveTests.IsEnabled = true;
         }
 

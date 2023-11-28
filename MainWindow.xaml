@@ -43,8 +43,8 @@
 					</Binding>
 				</TextBox.Text>
 			</TextBox>
-			<RadioButton x:Name="RadioPos" Content="Позитивные" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="True" Click="RadioPos_Click"/>
-			<RadioButton x:Name="RadioNeg" Content="Негативные" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Click="RadioNeg_Click"/>
+			<RadioButton x:Name="RadioPos" Content="Позитивные" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding Path=IsPositive}" Click="RadioPos_Click"/>
+			<RadioButton x:Name="RadioNeg" Content="Негативные" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding Path=IsNegative}" Click="RadioNeg_Click"/>
 			<Label Content="Диапазон интегрирования:" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Center"/>
 			<Label Content="от" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="1px"/>
 			<TextBox x:Name="LeftBorder" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="25px 0px" Width="30px"
