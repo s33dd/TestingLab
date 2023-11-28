@@ -320,7 +320,6 @@ namespace Tester
                 int coefCount = 0;
                 for (int i = 1; i <= parameters.Quantity; i++)
                 {
-                    //List<double> coeffs = GenerateCoeffs(i * 16);
                     List<double> coeffs = new List<double>();
                     String ab = PolyCoefs.Text;
                     var arr = ab.Split(" ");
@@ -372,13 +371,37 @@ namespace Tester
 
         private void InputTests_Click(object sender, RoutedEventArgs e)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            if (saveFileDialog.ShowDialog() == false) return;
-            string path = saveFileDialog.FileName;
-            testsCases.Text = File.ReadAllText(path + ".txt");
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            if (openFileDialog.ShowDialog() == false) return;
+            string path = openFileDialog.FileName;
+            testsCases.Text = File.ReadAllText(path);
             StartBtn.IsEnabled = true;
+            InputFileParser();
         }
 
+        private void InputFileParser()
+        {
+            try
+            {
+                Regex reg = new Regex(@"Test+.[0-8]+.[N,P]");
+                var match = reg.Match(testsCases.Text);
+                string type = match.Value;
+                type = type.Split("1")[1].Trim();
+                if (type == "P")
+                {
+                    CasesQuantity.Text = 15.ToString();
+                    parameters.Quantity = 15;
+                    RadioPos.IsChecked = true;
+                }
+                else
+                {
+                    CasesQuantity.Text = 64.ToString();
+                    parameters.Quantity = 64;
+                    RadioNeg.IsChecked = true;
+                }
+            }
+            catch { }
+        }
         private void SaveTests_Click(object sender, RoutedEventArgs e)
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
