@@ -407,5 +407,31 @@ namespace Tester
             string path = saveFileDialog.FileName;
             File.WriteAllText(path + ".txt", testsCases.Text);
         }
+
+        private static readonly Regex _regex = new Regex("-[\\d,]+|[\\d,]+"); //regex that matches disallowed text
+        private static bool IsTextAllowed(string text)
+        {
+            return _regex.IsMatch(text);
+        }
+
+        private void TextBoxPasting(object sender, DataObjectPastingEventArgs e)
+        {
+            if (e.DataObject.GetDataPresent(typeof(String)))
+            {
+                String text = (String)e.DataObject.GetData(typeof(String));
+                if (!IsTextAllowed(text))
+                {
+                    e.CancelCommand();
+                }
+            }
+            else
+            {
+                e.CancelCommand();
+            }
+        }
+        private new void PreviewTextInput(Object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = !IsTextAllowed(e.Text);
+        }
     }
 }

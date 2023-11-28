@@ -114,7 +114,7 @@
 				</Grid>
 			</TabItem>
 			<TabItem Header="Коэффициенты">
-				<TextBox x:Name="PolyCoefs" Grid.Column="1" Grid.Row="7" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10px 10px 10px 10px"
+                <TextBox x:Name="PolyCoefs" PreviewTextInput="PreviewTextInput" DataObject.Pasting="TextBoxPasting" Grid.Column="1" Grid.Row="7" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10px 10px 10px 10px"
 						 ScrollViewer.HorizontalScrollBarVisibility="Disabled" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
 			</TabItem>
 		</TabControl>
