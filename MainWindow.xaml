@@ -94,17 +94,29 @@
 			</TextBox>
 			<Button x:Name="StartBtn" Grid.Column="0" Grid.Row="6" Height="30px" Width="100px" Content="Тестирование" Click="StartBtn_Click"/>
 			<Button x:Name="ExportBtn" Grid.Column="1" Grid.Row="6" Height="30px" Width="100px" Content="Экспорт" Click="ExportBtn_Click"/>
-            <Label Content="Коэффициенты полинома:" Grid.Column="0" Grid.Row="7" HorizontalAlignment="Right" VerticalAlignment="Center" />
-            <TextBox x:Name="PolyCoefs" Grid.Column="1" Grid.Row="7" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="10px"/>
-            <Button x:Name="GenerateCoefs" Grid.Column="0" Grid.Row="8" Height="30px" Width="100px" Content="Сгенерировать" Click="GenerateCoefs_Click"/>
-            <Button x:Name="SaveTests" Grid.Column="1" Grid.Row="8" Height="30px" Width="100px" Content="Сохранить тест-кейсы" Click="SaveTests_Click"/>
-            <Button x:Name="InputTests" Grid.Column="1" Grid.Row="9" Height="30px" Width="100px" Content="Загрузить из файла" Click="InputTests_Click"/>
+			<Button x:Name="GenerateCoefs" Grid.Column="0" Grid.Row="8" Height="30px" Width="100px" Content="Сгенерировать" Click="GenerateCoefs_Click"/>
+            <Button x:Name="SaveTests" Grid.Column="1" Grid.Row="8" Height="30px" Width="150px" Content="Сохранить тест-кейсы" Click="SaveTests_Click"/>
+            <Button x:Name="InputTests" Grid.Column="1" Grid.Row="9" Height="30px" Width="150px" Content="Загрузить из файла" Click="InputTests_Click"/>
         </Grid>
-		<GroupBox Grid.Column="2" Header="Результат" Margin="2px 2px 2px 2px">
-            <TextBox x:Name="Result" IsReadOnly="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto"/>	
-        </GroupBox>
-        <GroupBox Grid.Column="1" Header="Тест-кейсы" Margin="2px 2px 2px 2px">
-            <TextBox x:Name="testsCases" IsReadOnly="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
-        </GroupBox>
-    </Grid>
+		<TabControl Grid.ColumnSpan="2" Grid.Column="1">
+			<TabItem Header="Тестирование">
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition/>
+						<ColumnDefinition/>
+					</Grid.ColumnDefinitions>
+					<GroupBox Grid.Column="2" Header="Результат" Margin="2px 2px 2px 2px">
+						<TextBox x:Name="Result" IsReadOnly="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+					</GroupBox>
+					<GroupBox Grid.Column="0" Header="Тест-кейсы" Margin="2px 2px 2px 2px">
+						<TextBox x:Name="testsCases" IsReadOnly="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+					</GroupBox>
+				</Grid>
+			</TabItem>
+			<TabItem Header="Коэффициенты">
+				<TextBox x:Name="PolyCoefs" Grid.Column="1" Grid.Row="7" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10px 10px 10px 10px"
+						 ScrollViewer.HorizontalScrollBarVisibility="Disabled" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+			</TabItem>
+		</TabControl>
+	</Grid>
 </Window>

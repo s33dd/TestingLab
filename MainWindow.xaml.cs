@@ -279,7 +279,7 @@ namespace Tester
                 for (int i = 1; i < 16; i++)
                 {
                     List<double> coeffs = GenerateCoeffs(i);
-                    PolyCoefs.Text += String.Join(" ", coeffs.ToArray());
+					PolyCoefs.Text += String.Join(" ", coeffs.ToArray());
                     PolyCoefs.Text += " ";
                 }
                 int coefCount = 0;
@@ -336,7 +336,7 @@ namespace Tester
                     testsCases.Text += "YE: S = " + "Сообщение о превышении степени полинома" + "\n";
                     testsCases.Text += "\n";
                 }
-            }
+            } 
             StartBtn.IsEnabled = true;
             SaveTests.IsEnabled = true;
         }
