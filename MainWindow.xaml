@@ -16,9 +16,8 @@
 			<RowDefinition/>
 		</Grid.RowDefinitions>
 		<Grid Grid.Row="0">
-			<Grid.RowDefinitions>
-				<RowDefinition/>
-				<RowDefinition/>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
 				<RowDefinition/>
 				<RowDefinition/>
 				<RowDefinition/>
@@ -92,11 +91,12 @@
 					</Binding>
 				</TextBox.Text>
 			</TextBox>
-			<Button x:Name="StartBtn" Grid.Column="0" Grid.Row="6" Height="30px" Width="100px" Content="Тестирование" Click="StartBtn_Click"/>
-			<Button x:Name="ExportBtn" Grid.Column="1" Grid.Row="6" Height="30px" Width="100px" Content="Экспорт" Click="ExportBtn_Click"/>
-			<Button x:Name="GenerateCoefs" Grid.Column="0" Grid.Row="8" Height="30px" Width="100px" Content="Сгенерировать" Click="GenerateCoefs_Click"/>
-            <Button x:Name="SaveTests" Grid.Column="1" Grid.Row="8" Height="30px" Width="150px" Content="Сохранить тест-кейсы" Click="SaveTests_Click"/>
-            <Button x:Name="InputTests" Grid.Column="1" Grid.Row="9" Height="30px" Width="150px" Content="Загрузить из файла" Click="InputTests_Click"/>
+			<Button x:Name="StartBtn" Grid.Column="0" Grid.Row="8" Height="30px" Width="100px" Content="Тестирование" Click="StartBtn_Click"/>
+			<Button x:Name="ExportBtn" Grid.Column="1" Grid.Row="8" Height="30px" Width="100px" Content="Экспорт" Click="ExportBtn_Click"/>
+			<Button x:Name="GenerateCoefs" Grid.Column="0" Grid.Row="6" Height="30px" Width="180px" Content="Сгенерировать коэффициенты" Click="GenerateCoefs_Click"/>
+            <Button x:Name="SaveTests" Grid.Column="1" Grid.Row="7" Height="30px" Width="150px" Content="Сохранить тест-кейсы" Click="SaveTests_Click"/>
+            <Button x:Name="InputTests" Grid.Column="1" Grid.Row="6" Height="30px" Width="150px" Content="Загрузить из файла" Click="InputTests_Click"/>
+            <Button x:Name="GenerateTests" Grid.Column="0" Grid.Row="7" Height="30px" Width="170px" Content="Сгенерированть тест-кейсы" Click="GenerateTests_Click" />
         </Grid>
 		<TabControl Grid.ColumnSpan="2" Grid.Column="1">
 			<TabItem Header="Тестирование">
@@ -115,7 +115,7 @@
 			</TabItem>
 			<TabItem Header="Коэффициенты">
                 <TextBox x:Name="PolyCoefs" PreviewTextInput="PreviewTextInput" DataObject.Pasting="TextBoxPasting" Grid.Column="1" Grid.Row="7" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10px 10px 10px 10px"
-						 ScrollViewer.HorizontalScrollBarVisibility="Disabled" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+						 ScrollViewer.HorizontalScrollBarVisibility="Disabled" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto" />
 			</TabItem>
 		</TabControl>
 	</Grid>

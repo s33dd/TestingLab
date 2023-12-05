@@ -24,6 +24,7 @@ namespace Tester
         private bool testType = true;
         private bool coeffsGenerated = false;
         private List<List<double>> coeffsArray = new List<List<double>>();
+        List<double> coeffs = new List<double>();
         public MainWindow()
         {
             InitializeComponent();
@@ -38,6 +39,7 @@ namespace Tester
             ExportBtn.IsEnabled = false;
             StartBtn.IsEnabled = false;
             SaveTests.IsEnabled = false;
+            GenerateTests.IsEnabled = false;
         }
 
         private double CallWolfram(List<double> coeffs, double leftBorder, double rightBorder)
@@ -277,15 +279,10 @@ namespace Tester
             parameters.Quantity = 64;
         }
 
-        private void GenerateCoefs_Click(object sender, RoutedEventArgs e)
+        private void TestCasesGenerator()
         {
-			if (testType)
+            if (testType)
             {
-                const int positiveCoeffsQunatity = 15;
-                List<double> coeffs = GenerateCoeffs(positiveCoeffsQunatity);
-				PolyCoefs.Text += String.Join(" ", coeffs.ToArray());
-                PolyCoefs.Text += " ";
-                int coefCount = 0;
                 for (int k = 1; k <= parameters.Quantity; k++)
                 {
                     List<double> localCoeffs = new List<double>();
@@ -293,11 +290,10 @@ namespace Tester
                     var arr = ab.Split(" ");
                     for (int j = 0; j < k; j++)
                     {
-						localCoeffs.Add(double.Parse(arr[j]));
+                        localCoeffs.Add(double.Parse(arr[j]));
                     }
-                    coefCount += k;
                     double wolframResult = CallWolfram(localCoeffs, parameters.LeftBorder, parameters.RightBorder);
-                    
+
                     //Вызов Integral3x, сравнение результатов, генерация отчёта
                     List<string> integral3xResult = ScriptGenerator(parameters.LeftBorder, parameters.RightBorder, parameters.Step, Method.SelectedIndex + 1, localCoeffs, k, "P");
 
@@ -311,11 +307,6 @@ namespace Tester
             }
             else
             {
-				const int negativeCoeffsQunatity = 1024;
-				List<double> coeffs = GenerateCoeffs(negativeCoeffsQunatity);
-                PolyCoefs.Text += String.Join(" ", coeffs.ToArray());
-                PolyCoefs.Text += " ";
-                int coefCount = 0;
                 for (int i = 1; i <= parameters.Quantity; i++)
                 {
                     List<double> localCoeffs = new List<double>();
@@ -323,9 +314,8 @@ namespace Tester
                     var arr = ab.Split(" ");
                     for (int j = 0; j < i * 16; j++)
                     {
-						localCoeffs.Add(double.Parse(arr[j]));
+                        localCoeffs.Add(double.Parse(arr[j]));
                     }
-                    coefCount += 16;
                     //Вызов Integral3x, сравнение результатов, генерация отчёта
                     List<string> integral3xResult = ScriptGenerator(parameters.LeftBorder, parameters.RightBorder, parameters.Step, Method.SelectedIndex + 1, localCoeffs, i, "N");
 
@@ -336,9 +326,31 @@ namespace Tester
                     testsCases.Text += "\n";
                 }
             }
+        }
+        private void GenerateCoefs_Click(object sender, RoutedEventArgs e)
+        {
+            //testsCases.Clear();
+            PolyCoefs.Clear();
+			if (testType)
+            {
+                const int positiveCoeffsQunatity = 15;
+                coeffs = GenerateCoeffs(positiveCoeffsQunatity);
+                PolyCoefs.Text += String.Join(" ", coeffs.ToArray());
+                PolyCoefs.Text += " ";
+                //TestCasesGenerator();
+            }
+            else
+            {
+				const int negativeCoeffsQunatity = 1024;
+				coeffs = GenerateCoeffs(negativeCoeffsQunatity);
+                PolyCoefs.Text += String.Join(" ", coeffs.ToArray());
+                PolyCoefs.Text += " ";
+                //TestCasesGenerator();
+            }
 			coeffsGenerated = true;
-			StartBtn.IsEnabled = true;
-            SaveTests.IsEnabled = true;
+			//StartBtn.IsEnabled = true;
+            //SaveTests.IsEnabled = true;
+            GenerateTests.IsEnabled = true;
         }
 
         private List<double> GenerateCoeffs(int quantity)
@@ -432,6 +444,14 @@ namespace Tester
         private new void PreviewTextInput(Object sender, TextCompositionEventArgs e)
         {
             e.Handled = !IsTextAllowed(e.Text);
+        }
+
+        private void GenerateTests_Click(object sender, RoutedEventArgs e)
+        {
+            testsCases.Clear();
+            TestCasesGenerator();
+            StartBtn.IsEnabled = true;
+            SaveTests.IsEnabled = true;
         }
     }
 }
