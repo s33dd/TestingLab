@@ -262,7 +262,10 @@ namespace Tester
 
         private void ExportBtn_Click(object sender, RoutedEventArgs e)
         {
-            File.WriteAllText("report.txt", Result.Text);
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            if (saveFileDialog.ShowDialog() == false) return;
+            string path = saveFileDialog.FileName;
+            File.WriteAllText(path + ".txt", Result.Text);
         }
 
         private void RadioPos_Click(object sender, RoutedEventArgs e)
