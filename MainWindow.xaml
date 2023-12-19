@@ -96,7 +96,7 @@
 			<Button x:Name="GenerateCoefs" Grid.Column="0" Grid.Row="6" Height="30px" Width="180px" Content="Сгенерировать коэффициенты" Click="GenerateCoefs_Click"/>
             <Button x:Name="SaveTests" Grid.Column="1" Grid.Row="7" Height="30px" Width="150px" Content="Сохранить тест-кейсы" Click="SaveTests_Click"/>
             <Button x:Name="InputTests" Grid.Column="1" Grid.Row="6" Height="30px" Width="150px" Content="Загрузить из файла" Click="InputTests_Click"/>
-            <Button x:Name="GenerateTests" Grid.Column="0" Grid.Row="7" Height="30px" Width="180px" Content="Сгенерированть тест-кейсы" Click="GenerateTests_Click" />
+            <Button x:Name="GenerateTests" Grid.Column="0" Grid.Row="7" Height="30px" Width="180px" Content="Сгенерировать тест-кейсы" Click="GenerateTests_Click" />
         </Grid>
 		<TabControl Grid.ColumnSpan="2" Grid.Column="1">
 			<TabItem Header="Коэффициенты">
