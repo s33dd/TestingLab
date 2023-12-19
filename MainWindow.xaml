@@ -9,13 +9,16 @@
 	<Grid>
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="0.5*"/>
-			<ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="0.5*"/>
+            <ColumnDefinition Width="0.5*"/>
 		</Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
 			<RowDefinition/>
 		</Grid.RowDefinitions>
 		<Grid Grid.Row="0">
-			<Grid.RowDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+				<RowDefinition/>
 				<RowDefinition/>
 				<RowDefinition/>
 				<RowDefinition/>
@@ -39,8 +42,8 @@
 					</Binding>
 				</TextBox.Text>
 			</TextBox>
-			<RadioButton x:Name="RadioPos" Content="Позитивные" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="True"/>
-			<RadioButton x:Name="RadioNeg" Content="Негативные" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			<RadioButton x:Name="RadioPos" Content="Позитивные" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding Path=IsPositive}" Click="RadioPos_Click"/>
+			<RadioButton x:Name="RadioNeg" Content="Негативные" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding Path=IsNegative}" Click="RadioNeg_Click"/>
 			<Label Content="Диапазон интегрирования:" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Center"/>
 			<Label Content="от" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="1px"/>
 			<TextBox x:Name="LeftBorder" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="25px 0px" Width="30px"
@@ -88,11 +91,32 @@
 					</Binding>
 				</TextBox.Text>
 			</TextBox>
-			<Button x:Name="StartBtn" Grid.Column="0" Grid.Row="6" Height="30px" Width="100px" Content="Тестирование" Click="StartBtn_Click"/>
-			<Button x:Name="ExportBtn" Grid.Column="1" Grid.Row="6" Height="30px" Width="100px" Content="Экспорт" Click="ExportBtn_Click"/>
-		</Grid>
-		<GroupBox Grid.Column="1" Header="Результат" Margin="2px 2px 2px 2px">
-            <TextBox x:Name="Result" IsReadOnly="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto"/>	
-        </GroupBox>
+			<Button x:Name="StartBtn" Grid.Column="0" Grid.Row="8" Height="30px" Width="100px" Content="Тестирование" Click="StartBtn_Click"/>
+			<Button x:Name="ExportBtn" Grid.Column="1" Grid.Row="8" Height="30px" Width="150px" Content="Сохранить результат" Click="ExportBtn_Click"/>
+			<Button x:Name="GenerateCoefs" Grid.Column="0" Grid.Row="6" Height="30px" Width="180px" Content="Сгенерировать коэффициенты" Click="GenerateCoefs_Click"/>
+            <Button x:Name="SaveTests" Grid.Column="1" Grid.Row="7" Height="30px" Width="150px" Content="Сохранить тест-кейсы" Click="SaveTests_Click"/>
+            <Button x:Name="InputTests" Grid.Column="1" Grid.Row="6" Height="30px" Width="150px" Content="Загрузить из файла" Click="InputTests_Click"/>
+            <Button x:Name="GenerateTests" Grid.Column="0" Grid.Row="7" Height="30px" Width="180px" Content="Сгенерировать тест-кейсы" Click="GenerateTests_Click" />
+        </Grid>
+		<TabControl Grid.ColumnSpan="2" Grid.Column="1">
+			<TabItem Header="Коэффициенты">
+                <TextBox x:Name="PolyCoefs" PreviewTextInput="PreviewTextInput" DataObject.Pasting="TextBoxPasting" Grid.Column="1" Grid.Row="7" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10px 10px 10px 10px"
+						 ScrollViewer.HorizontalScrollBarVisibility="Disabled" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto" />
+			</TabItem>
+			<TabItem Header="Тестирование">
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition/>
+						<ColumnDefinition/>
+					</Grid.ColumnDefinitions>
+					<GroupBox Grid.Column="2" Header="Результат" Margin="2px 2px 2px 2px">
+						<TextBox x:Name="Result" IsReadOnly="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+					</GroupBox>
+					<GroupBox Grid.Column="0" Header="Тест-кейсы" Margin="2px 2px 2px 2px">
+						<TextBox x:Name="testsCases" IsReadOnly="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+					</GroupBox>
+				</Grid>
+			</TabItem>
+		</TabControl>
 	</Grid>
 </Window>

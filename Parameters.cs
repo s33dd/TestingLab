@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace Tester {
 	public class Parameters : IDataErrorInfo {
@@ -7,7 +8,8 @@ namespace Tester {
 		public double RightBorder { get; set; }
 		public double Step { get; set; }
 		public double Eps { get; set; }
-
+		public bool IsPositive {  get; set; }
+		public bool IsNegative {  get; set; }
 		public string Error {
 			get { throw new System.NotImplementedException(); }
 		}
@@ -20,7 +22,14 @@ namespace Tester {
 							if (Quantity <= 0) {
 								error = "Количество должно быть больше 0";
 							}
+							if (IsPositive & Quantity > 15) {
+								error = "Количество позитивных тест-кейсов не может быть больше 15";
+							}
+							if (IsNegative & Quantity > 64) {
+								error = "Количество негативных тест-кейсов не может быть больше 64";
+							}
 							break;
+
 					}
 					case "Eps": {
 							if (Eps <= 0) {
@@ -33,6 +42,8 @@ namespace Tester {
 			}
 	}
 
-		public Parameters() { }
+		public Parameters() {
+			IsPositive = true;
+		}
 	}
 }
